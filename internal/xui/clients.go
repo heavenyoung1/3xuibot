@@ -1,6 +1,6 @@
 package xui
 
-// Клиент
+// ――― Клиент ―――
 type Client struct {
 	ID           int    `json:"id"`
 	Email        string `json:"email"`
@@ -39,11 +39,38 @@ type Traffic struct {
 	Down   int64 `json:"down"`
 }
 
-// Все клиенты, подключенные к серверу VPN
-type Clients struct {
+// ――― Ответ сервера - Получить всех клиентов ―――
+type ClientsResponse struct {
 	Success bool     `json:"success"`
 	Message string   `json:"msg"`
-	Objects []Client `json:"obj"`
+	Object  []Client `json:"obj"`
+}
+
+// ――――――――――――――――――――――――――――――――――――――――――――――
+
+// ――― Структуры для получения клиента ―――
+type ExternalLink struct {
+	ID        int    `json:"id"`
+	ClientID  int    `json:"clientId"`
+	Kind      string `json:"kind"`
+	Value     string `json:"value"`
+	Remark    string `json:"remark"`
+	SortIndex int    `json:"sortIndex"`
+	CreatedAt int64  `json:"createdAt"`
+}
+
+type ClientDetails struct {
+	Client        Client         `json:"client"`
+	ExternalLinks []ExternalLink `json:"externalLinks"`
+	InboundIDs    []int          `json:"inboundIds"`
+	UsedTraffic   int64          `json:"usedTraffic"`
+}
+
+// ――― Ответ сервера - Получить одного клиента ―――
+type ClientResponse struct {
+	Success bool          `json:"success"`
+	Message string        `json:"msg"`
+	Object  ClientDetails `json:"obj"`
 }
 
 // Описание структуры входящего соединения

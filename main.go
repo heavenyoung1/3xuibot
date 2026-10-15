@@ -14,13 +14,13 @@ import (
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Printf("предупреждение: .env на загружен %v", err)
+		log.Printf(".env на загружен %v", err)
 	}
 
 	baseURL := os.Getenv("URL")
 	token := os.Getenv("TOKEN")
 	if baseURL == "" || token == "" {
-		log.Fatal("ошибка загрузки констант из .env")
+		log.Fatal("загрузка констант из .env")
 	}
 
 	api := xui.NewClientAPI(baseURL, token)
@@ -30,9 +30,15 @@ func main() {
 
 	clients, err := api.ListClients(ctx)
 	if err != nil {
-		log.Fatalf("ошибка получения клиентов %v", err)
+		log.Fatalf("получение клиентов: %v", err)
 	}
 	for _, c := range clients {
 		fmt.Println(c.Email, c.UUID)
 	}
+
+	client, err := api.ClientByEmail(ctx, "Test")
+	if err != nil {
+		log.Fatalf("получение клиента: %v", err)
+	}
+	fmt.Println(client)
 }
