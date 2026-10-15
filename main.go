@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -36,9 +37,21 @@ func main() {
 		fmt.Println(c.Email, c.UUID)
 	}
 
-	client, err := api.ClientByEmail(ctx, "Test")
-	if err != nil {
-		log.Fatalf("получение клиента: %v", err)
+	email := "AntonY"
+	client, err := api.ClientByEmail(ctx, email)
+	switch {
+	case errors.Is(err, xui.ErrClientNotFound):
+		log.Printf("клиент %q не найден", email)
+	case err != nil:
+		log.Fatalf("получение клиента %v", err)
+	default:
+		log.Printf("клиент: %+v", client)
 	}
-	fmt.Println(client)
+
+	// TODO пока что поиск по TgID не работает
+	// clientsTgId, err := api.ClientByTgId(ctx, 1234567891)
+	// if err != nil {
+	// 	log.Fatalf("получение клиента по tgid: %v", err)
+	// }
+	// fmt.Println(clientsTgId)
 }

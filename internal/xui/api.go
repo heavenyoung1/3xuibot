@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -106,4 +107,37 @@ func (c *ClientAPI) ClientByEmail(ctx context.Context, email string) (*Client, e
 		return nil, fmt.Errorf("панель вернула ошибку: %s", resp.Message)
 	}
 	return &resp.Object.Client, nil
+}
+
+// Получить конкретного клиента по <TelegramID>
+func (c *ClientAPI) ClientByTgId(ctx context.Context, tgId int64) ([]Client, error) {
+	if tgId <= 0 {
+		return nil, nil
+	}
+
+	path := "/panel/api/clients/get/tgId/" + strconv.FormatInt(tgId, 10)
+
+	body, err := c.do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp ClientsByTgIdResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("разбор JSON выполнен некорректно %w, body=%s", err, body)
+	}
+	//log.Println(string(body))
+	if !resp.Success {
+		if strings.Contains(resp.Message, msgRecordNotFound) {
+			return nil, ErrClientNotFound
+		}
+		return nil, fmt.Errorf("панель вернула ошибку: %s", resp.Message)
+	}
+
+	clients := make([]Client, 0, len(resp.Object))
+	for _, item := range resp.Object {
+		clients = append(clients, item.Client)
+	}
+
+	return clients, nil
 }

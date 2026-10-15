@@ -73,6 +73,13 @@ type ClientResponse struct {
 	Object  ClientDetails `json:"obj"`
 }
 
+// ――― Ответ сервера - Получить клиентов по TelegramID ―――
+type ClientsByTgIdResponse struct {
+	Success bool            `json:"success"`
+	Message string          `json:"msg"`
+	Object  []ClientDetails `json:"obj"`
+}
+
 // Описание структуры входящего соединения
 // type Inbound struct {
 // 	ID int `json:"success"`
