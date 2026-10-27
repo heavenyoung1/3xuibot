@@ -80,10 +80,53 @@ type ClientsByTgIdResponse struct {
 	Object  []ClientDetails `json:"obj"`
 }
 
+// ――― Внутреняя структура для создания клиента ―――
+type ClientAddInternal struct {
+	Email      string `json:"email"`
+	TotalGB    int64  `json:"totalGB"`
+	ExpiryTime int64  `json:"expiryTime"`
+	TgID       int32  `json:"tgId"`
+	LimitIP    int16  `json:"limitIp"`
+	Enable     string `json:"enable"`
+}
+
+// ――― Запрос на создание клиента  ―――
+type ClientAddRequest struct {
+	Client     ClientAddInternal `json:"client"`
+	InboundIDs []int             `json:"inboundIds"`
+}
+
+// ――― Ответ сервера - Создание нового клиента ―――
+type ClientAddResponse struct {
+	Success bool            `json:"success"`
+	Message string          `json:"msg"`
+	Object  []ClientDetails `json:"obj"`
+}
+
 // Описание структуры входящего соединения
-// type Inbound struct {
-// 	ID int `json:"success"`
-// 	InboundIDs int `json:"inboundIds"`
-// 	Enable bool `json:"success"`
-// 	Email string `json:"success"`
-// }
+type Inbound struct {
+	ID                int `json:"id"`
+	Remark            int `json:"remark"`
+	Tag               int `json:"tag"`
+	Protocol          int `json:"protocol"`
+	Port              int `json:"port"`
+	Enable            int `json:"enable"`
+	TlsFlowCapable    int `json:"tlsFlowCapable"`
+	SsMethod          int `json:"ssMethod"`
+	Listen            int `json:"listen"`
+	ShareAddrStrategy int `json:"shareAddrStrategy"`
+}
+
+// ――― Ответ сервера - Создание нового клиента ―――
+type InboundsResponse struct {
+	Success bool      `json:"success"`
+	Message string    `json:"msg"`
+	Object  []Inbound `json:"obj"`
+}
+
+// ――― Ответ сервера - Создание нового клиента ―――
+type InboundLinksResponse struct {
+	Success bool     `json:"success"`
+	Message string   `json:"msg"`
+	Object  []string `json:"obj"`
+}

@@ -15,8 +15,12 @@ import (
 )
 
 var ErrClientNotFound = errors.New("клиент не найден")
+var ErrClientNotAdded = errors.New("клиент не добавлен")
 
 const msgRecordNotFound = "record not found"
+const msgClientNotAdded = "Something went wrong"
+
+const ClientHasBeenAdded = "Inbound client(s) have been added."
 
 // Обертка для работы с клиентами по API 3X-UI
 type ClientAPI struct {
@@ -67,7 +71,45 @@ func (c *ClientAPI) do(ctx context.Context, method, path string, payload []byte)
 	return body, nil
 }
 
-// Получить список клиентов
+// Получение списка Inboubds (входящие соединения)
+func (c *ClientAPI) ListInbounds(ctx context.Context) ([]Inbound, error) {
+	path := "/panel/api/inbounds/options"
+
+	body, err := c.do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp InboundsResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("разбор JSON %w, body=%s", err, body)
+	}
+	if !resp.Success {
+		return nil, fmt.Errorf("панель вернула ошибку: %s", resp.Message)
+	}
+	return resp.Object, nil
+}
+
+// Получить все ссылки Inbounds (входящих подключений)
+func (c *ClientAPI) AllInboundLinks(ctx context.Context) ([]string, error) {
+	path := "/panel/api/inbounds/allLinks"
+
+	body, err := c.do(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp InboundLinksResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("разбор JSON %w, body=%s", err, body)
+	}
+	if !resp.Success {
+		return nil, fmt.Errorf("панель вернула ошибку: %s", resp.Message)
+	}
+	return resp.Object, nil
+}
+
+// Получение списка клиентов
 func (c *ClientAPI) ListClients(ctx context.Context) ([]Client, error) {
 	path := "/panel/api/clients/list"
 
@@ -86,7 +128,7 @@ func (c *ClientAPI) ListClients(ctx context.Context) ([]Client, error) {
 	return resp.Object, nil
 }
 
-// Получить конкретного клиента по <email>
+// Получение клиента по <email>
 func (c *ClientAPI) ClientByEmail(ctx context.Context, email string) (*Client, error) {
 	path := "/panel/api/clients/get/" + url.PathEscape(email)
 
@@ -109,7 +151,7 @@ func (c *ClientAPI) ClientByEmail(ctx context.Context, email string) (*Client, e
 	return &resp.Object.Client, nil
 }
 
-// Получить конкретного клиента по <TelegramID>
+// Получение  клиента по <TelegramID>
 func (c *ClientAPI) ClientByTgId(ctx context.Context, tgId int64) ([]Client, error) {
 	if tgId <= 0 {
 		return nil, nil
@@ -140,4 +182,38 @@ func (c *ClientAPI) ClientByTgId(ctx context.Context, tgId int64) ([]Client, err
 	}
 
 	return clients, nil
+}
+
+// Создание клиента
+func (c *ClientAPI) AddClient(ctx context.Context, clientData ClientAddRequest) (bool, error) {
+	path := "/panel/api/clients/add"
+
+	// 1. Сериализуем структуру в JSON
+	payload, err := json.Marshal(clientData)
+	if err != nil {
+		return false, fmt.Errorf("упаковка JSON выполнена некорректно %w, body=%s", err, payload)
+	}
+
+	// 2. Передаём []byte
+	body, err := c.do(ctx, http.MethodPost, path, payload)
+	if err != nil {
+		return false, err
+	}
+
+	var resp ClientAddResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return false, fmt.Errorf("разбор JSON выполнен некорректно %w, body=%s", err, body)
+	}
+	if !resp.Success {
+		if strings.Contains(resp.Message, msgClientNotAdded) {
+			return false, ErrClientNotAdded
+		}
+		return false, fmt.Errorf("панель вернула ошибку: %s", resp.Message)
+	}
+	if resp.Success {
+		if strings.Contains(resp.Message, ClientHasBeenAdded) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
