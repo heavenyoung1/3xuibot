@@ -1,18 +1,48 @@
 package main
 
 import (
+	"3xuibot/internal/app"
+	"3xuibot/internal/config"
 	"context"
-	"errors"
-	"fmt"
-	"log"
+	"log/slog"
 	"os"
-	"time"
-
-	xui "3xuibot/internal/xui"
-
-	"github.com/joho/godotenv"
+	"os/signal"
+	"syscall"
 )
 
+func main() {
+	if err := run(); err != nil {
+		slog.Error("application stopped with error", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+
+	application, err := app.New(cfg)
+	if err != nil {
+		return err
+	}
+
+	ctx, stop := signal.NotifyContext(
+		context.Background(),
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+	defer stop()
+
+	slog.Info("starting application")
+
+	application.Run(ctx)
+
+	slog.Info("application stopped")
+
+	return nil
+}
 
 // func main() {
 // 	if err := godotenv.Load(); err != nil {
@@ -49,10 +79,10 @@ import (
 // 		log.Printf("клиент: %+v", client)
 // 	}
 
-	// TODO пока что поиск по TgID не работает
-	// clientsTgId, err := api.ClientByTgId(ctx, 1234567891)
-	// if err != nil {
-	// 	log.Fatalf("получение клиента по tgid: %v", err)
-	// }
-	// fmt.Println(clientsTgId)
-}
+// TODO пока что поиск по TgID не работает
+// clientsTgId, err := api.ClientByTgId(ctx, 1234567891)
+// if err != nil {
+// 	log.Fatalf("получение клиента по tgid: %v", err)
+// }
+// fmt.Println(clientsTgId)
+// }

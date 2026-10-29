@@ -15,11 +15,13 @@ type messageSender interface {
 	) (*models.Message, error)
 }
 
+// Bot представляет Telegram-бота нашего приложения
 type Bot struct {
 	client *tgbot.Bot
 	sender messageSender
 }
 
+// New создаёт Telegram-бота и регистрирует обработчики
 func New(token string) (*Bot, error) {
 	client, err := tgbot.New(
 		token,
@@ -37,6 +39,12 @@ func New(token string) (*Bot, error) {
 	return b, nil
 }
 
+// Start запускает получение обновлений от Telegram
+func (b *Bot) Start(ctx context.Context) {
+	b.client.Start(ctx)
+}
+
+// Регистрируем все наши обработчики
 func (b *Bot) registerHandlers() {
 	b.client.RegisterHandler(
 		tgbot.HandlerTypeMessageText,

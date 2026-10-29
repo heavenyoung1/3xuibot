@@ -3,9 +3,7 @@ package app
 import (
 	"3xuibot/internal/config"
 	"3xuibot/internal/telegram"
-
-	"example.com/mybot/internal/config"
-	"example.com/mybot/internal/telegram"
+	"context"
 )
 
 // App представляет приложение целиком
@@ -22,4 +20,9 @@ func New(cfg config.Config) (*App, error) {
 	return &App{
 		bot: bot,
 	}, nil
+}
+
+// Run запускает приложение
+func (a *App) Run(ctx context.Context) {
+	a.bot.Start(ctx)
 }
