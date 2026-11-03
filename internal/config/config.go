@@ -1,23 +1,32 @@
 package config
 
 import (
+	"errors"
 	"os"
-	"strings"
 )
 
 // Config содержит настройки приложения
 type Config struct {
 	TelegramBotToken string
-	XRayPanelTokens  []string
-	XRayPanelLinks   []string
+	XRayPanelToken   string
+	XRayPanelLink    string
 }
 
 // Load читает конфигурацию из переменных окружения
 func Load() (Config, error) {
 	cfg := Config{
 		TelegramBotToken: os.Getenv("TELEGRAM_BOT_TOKEN"),
-		XRayPanelTokens:  strings.Split(os.Getenv("XRAY_TOKENS"), ","),
-		XRayPanelLinks:   strings.Split(os.Getenv("XRAY_LINKS"), ","),
+		XRayPanelToken:   os.Getenv("XRAY_TOKEN"),
+		XRayPanelLink:    os.Getenv("XRAY_LINK"),
+	}
+	if cfg.TelegramBotToken == "" {
+		return Config{}, errors.New("TELEGRAM_BOT_TOKEN is not set")
+	}
+	if cfg.XRayPanelToken == "" {
+		return Config{}, errors.New("XRAY_TOKEN is not set")
+	}
+	if cfg.XRayPanelLink == "" {
+		return Config{}, errors.New("XRAY_LINK is not set")
 	}
 	return cfg, nil
 }

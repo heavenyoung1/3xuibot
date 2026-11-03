@@ -44,3 +44,31 @@ func (b *Bot) handleHelp(
 		slog.Error("failed to send help message", "error", err)
 	}
 }
+
+// func (b *Bot) HandleProfile(
+// 	ctx context.Context,
+// 	client *tgbot.Bot,
+// 	update *models.Update,
+// ) {
+// 	chatID := update.Message.Chat.ID
+// 	tgID := update.Message.From.ID
+
+// 	// Идём в панель за данными
+// 	clientDetails, err := b.panel.ClientByTgId(ctx, tgID)
+// 	if err != nil {
+// 		slog.Error("get client", "error", err)
+
+// 		text := "Не удалось получить данные, попробуйте позже."
+// 		if errors.Is(err, xui.ErrClientNotFound) {
+// 			text = "Подписка не найдена 🤷"
+// 		}
+// 		client.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: chatID, Text: text})
+// 		return
+// 	}
+
+// 	// Показываем профиль
+// 	client.SendMessage(ctx, &tgbot.SendMessageParams{
+// 		ChatID: chatID,
+// 		Text:   formatPro,
+// 	})
+// }

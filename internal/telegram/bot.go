@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"3xuibot/internal/xui"
 	"context"
 	"fmt"
 
@@ -8,22 +9,15 @@ import (
 	"github.com/go-telegram/bot/models"
 )
 
-type messageSender interface {
-	SendMessage(
-		ctx context.Context,
-		params *tgbot.SendMessageParams,
-	) (*models.Message, error)
-}
-
 // Bot представляет Telegram-бота нашего приложения
 type Bot struct {
-	client *tgbot.Bot
-	sender messageSender
+	api   *tgbot.Bot     // указатель на конкретный тип
+	panel *xui.ClientAPI // указатель на конкретный тип
 }
 
 // New создаёт Telegram-бота и регистрирует обработчики
-func New(token string) (*Bot, error) {
-	client, err := tgbot.New(
+func New(token string, panel *xui.ClientAPI) (*Bot, error) {
+	api, err := tgbot.New(
 		token,
 		tgbot.WithDefaultHandler(defaultHandler),
 	)
@@ -31,8 +25,8 @@ func New(token string) (*Bot, error) {
 		return nil, fmt.Errorf("create telegram bot: %w", err)
 	}
 	b := &Bot{
-		client: client,
-		sender: client,
+		api:   api,
+		panel: panel,
 	}
 	b.registerHandlers()
 
@@ -41,18 +35,18 @@ func New(token string) (*Bot, error) {
 
 // Start запускает получение обновлений от Telegram
 func (b *Bot) Start(ctx context.Context) {
-	b.client.Start(ctx)
+	b.api.Start(ctx)
 }
 
-// Регистрируем все наши обработчики
+// Регистрируем все обработчики
 func (b *Bot) registerHandlers() {
-	b.client.RegisterHandler(
+	b.api.RegisterHandler(
 		tgbot.HandlerTypeMessageText,
 		"/start",
 		tgbot.MatchTypeExact,
 		b.handleStart,
 	)
-	b.client.RegisterHandler(
+	b.api.RegisterHandler(
 		tgbot.HandlerTypeMessageText,
 		"/help",
 		tgbot.MatchTypeExact,

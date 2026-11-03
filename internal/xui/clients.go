@@ -75,9 +75,9 @@ type ClientResponse struct {
 
 // ――― Ответ сервера - Получить клиентов по TelegramID ―――
 type ClientsByTgIdResponse struct {
-	Success bool            `json:"success"`
-	Message string          `json:"msg"`
-	Object  []ClientDetails `json:"obj"`
+	Success bool          `json:"success"`
+	Message string        `json:"msg"`
+	Object  ClientDetails `json:"obj"`
 }
 
 // ――― Внутреняя структура для создания клиента ―――

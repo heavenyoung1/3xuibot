@@ -29,7 +29,7 @@ type ClientAPI struct {
 	httpClient *http.Client
 }
 
-// Создание нового клиента API
+// Создание нового подключения к API
 func NewClientAPI(baseURL, token string) *ClientAPI {
 	return &ClientAPI{
 		baseURL:    baseURL,
@@ -151,13 +151,13 @@ func (c *ClientAPI) ClientByEmail(ctx context.Context, email string) (*Client, e
 	return &resp.Object.Client, nil
 }
 
-// Получение  клиента по <TelegramID>
-func (c *ClientAPI) ClientByTgId(ctx context.Context, tgId int64) ([]Client, error) {
-	if tgId <= 0 {
+// Получение  клиента по TelegramID
+func (c *ClientAPI) ClientByTgId(ctx context.Context, tgID int64) (*ClientDetails, error) {
+	if tgID <= 0 {
 		return nil, nil
 	}
 
-	path := "/panel/api/clients/get/tgId/" + strconv.FormatInt(tgId, 10)
+	path := "/panel/api/clients/get/tgId/" + strconv.FormatInt(tgID, 10)
 
 	body, err := c.do(ctx, http.MethodGet, path, nil)
 	if err != nil {
@@ -176,12 +176,9 @@ func (c *ClientAPI) ClientByTgId(ctx context.Context, tgId int64) ([]Client, err
 		return nil, fmt.Errorf("панель вернула ошибку: %s", resp.Message)
 	}
 
-	clients := make([]Client, 0, len(resp.Object))
-	for _, item := range resp.Object {
-		clients = append(clients, item.Client)
-	}
+	clientDetails := resp.Object
 
-	return clients, nil
+	return &clientDetails, nil
 }
 
 // Создание клиента
