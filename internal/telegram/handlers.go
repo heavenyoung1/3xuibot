@@ -45,30 +45,28 @@ func (b *Bot) handleHelp(
 	}
 }
 
-// func (b *Bot) HandleProfile(
-// 	ctx context.Context,
-// 	client *tgbot.Bot,
-// 	update *models.Update,
-// ) {
-// 	chatID := update.Message.Chat.ID
-// 	tgID := update.Message.From.ID
+func (b *Bot) handleProfile(
+	ctx context.Context,
+	client *tgbot.Bot,
+	update *models.Update,
+) {
+	chatID := update.Message.Chat.ID
+	tgID := update.Message.From.ID
 
-// 	// Идём в панель за данными
-// 	clientDetails, err := b.panel.ClientByTgId(ctx, tgID)
-// 	if err != nil {
-// 		slog.Error("get client", "error", err)
+	// Идём в панель за данными
+	item, err := b.panel.ClientByTgId(ctx, tgID)
+	if err != nil {
+		slog.Error("получение клиента", "tg_id", tgID, "error", err)
 
-// 		text := "Не удалось получить данные, попробуйте позже."
-// 		if errors.Is(err, xui.ErrClientNotFound) {
-// 			text = "Подписка не найдена 🤷"
-// 		}
-// 		client.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: chatID, Text: text})
-// 		return
-// 	}
+		text := "Не удалось получить данные, попробуйте позже."
+		if errors.Is(err, xui.ErrClientNotFound) {
+			text = "Подписка не найдена 🤷"
+		}
+		b.api.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: chatID, Text: text})
 
-// 	// Показываем профиль
-// 	client.SendMessage(ctx, &tgbot.SendMessageParams{
-// 		ChatID: chatID,
-// 		Text:   formatPro,
-// 	})
-// }
+		b.api.SendMessage(ctx, &tgbot.SendMessageParams{
+			ChatID:    chatID,
+			Text:      "Тестовый текст",
+			ParseMode: models.ParseModeHTML,
+		})
+}

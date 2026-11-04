@@ -11,8 +11,8 @@ import (
 
 // Bot представляет Telegram-бота нашего приложения
 type Bot struct {
-	api   *tgbot.Bot     // указатель на конкретный тип
-	panel *xui.ClientAPI // указатель на конкретный тип
+	api   *tgbot.Bot
+	panel *xui.ClientAPI
 }
 
 // New создаёт Telegram-бота и регистрирует обработчики

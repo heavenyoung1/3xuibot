@@ -12,7 +12,7 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		slog.Error("application stopped with error", "error", err)
+		slog.Error("application stopped with", "error", err)
 		os.Exit(1)
 	}
 }
