@@ -154,7 +154,7 @@ func (c *ClientAPI) ClientByEmail(ctx context.Context, email string) (*Client, e
 // Получение  клиента по TelegramID
 func (c *ClientAPI) ClientByTgId(ctx context.Context, tgID int64) (*ClientDetails, error) {
 	if tgID <= 0 {
-		return nil, nil
+		return nil, fmt.Errorf("некорректный telegram id: %d", tgID)
 	}
 
 	path := "/panel/api/clients/get/tgId/" + strconv.FormatInt(tgID, 10)
@@ -165,6 +165,7 @@ func (c *ClientAPI) ClientByTgId(ctx context.Context, tgID int64) (*ClientDetail
 	}
 
 	var resp ClientsByTgIdResponse
+	// log.Println(string(body))
 	if err := json.Unmarshal(body, &resp); err != nil {
 		return nil, fmt.Errorf("разбор JSON выполнен некорректно %w, body=%s", err, body)
 	}
@@ -176,9 +177,13 @@ func (c *ClientAPI) ClientByTgId(ctx context.Context, tgID int64) (*ClientDetail
 		return nil, fmt.Errorf("панель вернула ошибку: %s", resp.Message)
 	}
 
-	clientDetails := resp.Object
+	// Пустой массив = у этого Telegram ID нет клиентов
+	if len(resp.Object) == 0 {
+		return nil, ErrClientNotFound
+	}
 
-	return &clientDetails, nil
+	// Пока берём первого клиента
+	return &resp.Object[0], nil
 }
 
 // Создание клиента

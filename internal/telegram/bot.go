@@ -52,6 +52,28 @@ func (b *Bot) registerHandlers() {
 		tgbot.MatchTypeExact,
 		b.handleHelp,
 	)
+	b.api.RegisterHandler(
+		tgbot.HandlerTypeMessageText,
+		"/profile",
+		tgbot.MatchTypeExact,
+		b.handleProfile,
+	)
+
+	// reply-кнопки (приходят как обычный текст)
+	// Кнопка получния профиля
+	b.api.RegisterHandler(
+		tgbot.HandlerTypeMessageText,
+		btnProfile,
+		tgbot.MatchTypeExact,
+		b.handleProfile,
+	)
+	// Кнопка создания подписи
+	b.api.RegisterHandler(
+		tgbot.HandlerTypeMessageText,
+		btnCreate,
+		tgbot.MatchTypeExact,
+		b.handleCreateSubscription,
+	)
 }
 
 func defaultHandler(

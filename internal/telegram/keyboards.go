@@ -3,15 +3,16 @@ package telegram
 import "github.com/go-telegram/bot/models"
 
 const btnMenu = "📋 Меню"
-const btnHelp = "❓ Помощь "
+const btnHelp = "❓ Помощь"
+const btnProfile = "❓ Профиль"
+const btnCreate = "❓ Создать подписку"
 
 // Обычная клавиатура под полем ввода
 func mainKeyboard() *models.ReplyKeyboardMarkup {
 	return &models.ReplyKeyboardMarkup{
 		Keyboard: [][]models.KeyboardButton{
-			{
-				{Text: btnMenu}, {Text: btnHelp}, // одна строка - две кнопки
-			},
+			{{Text: btnMenu}, {Text: btnHelp}, {Text: btnProfile}},
+			{{Text: btnCreate}},
 		},
 		ResizeKeyboard: true,
 	}

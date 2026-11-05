@@ -75,9 +75,9 @@ type ClientResponse struct {
 
 // ――― Ответ сервера - Получить клиентов по TelegramID ―――
 type ClientsByTgIdResponse struct {
-	Success bool          `json:"success"`
-	Message string        `json:"msg"`
-	Object  ClientDetails `json:"obj"`
+	Success bool            `json:"success"`
+	Message string          `json:"msg"`
+	Object  []ClientDetails `json:"obj"`
 }
 
 // ――― Внутреняя структура для создания клиента ―――
@@ -87,7 +87,7 @@ type ClientAddInternal struct {
 	ExpiryTime int64  `json:"expiryTime"`
 	TgID       int32  `json:"tgId"`
 	LimitIP    int16  `json:"limitIp"`
-	Enable     string `json:"enable"`
+	Enable     bool   `json:"enable"`
 }
 
 // ――― Запрос на создание клиента  ―――
