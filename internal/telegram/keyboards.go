@@ -4,8 +4,8 @@ import "github.com/go-telegram/bot/models"
 
 const btnMenu = "📋 Меню"
 const btnHelp = "❓ Помощь"
-const btnProfile = "❓ Профиль"
-const btnCreate = "❓ Создать подписку"
+const btnProfile = "👤 Профиль"
+const btnCreate = "➕ Создать подписку"
 
 // Обычная клавиатура под полем ввода
 func mainKeyboard() *models.ReplyKeyboardMarkup {

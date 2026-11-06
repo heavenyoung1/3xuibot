@@ -3,7 +3,9 @@ package telegram
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
+	"time"
 
 	"3xuibot/internal/xui"
 
@@ -84,14 +86,36 @@ func (b *Bot) handleCreateSubscription(
 ) {
 	chatID := update.Message.Chat.ID
 	tgID := update.Message.From.ID
+	userName := update.Message.From.Username
 
 	// Получаем доступные InboundIDs
+	// Проверяем есть ли у пользователя уже подписка
+	isExist, err := b.panel.ClientByTgId(ctx, tgID)
+	if err != nil && !errors.Is(err, xui.ErrClientNotFound) {
+		slog.Error("получение клиента", "tgID", tgID, "error", err)
+
+		text := "Не удалось получить данные, попробуйте позже."
+		client.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: chatID, Text: text})
+		return
+	}
+	slog.Info("клиент получен", "isExist", isExist)
+	if err != nil && isExist != nil {
+		client.SendMessage(ctx, &tgbot.SendMessageParams{
+			ChatID: chatID,
+			Text:   "Подписка уже есть",
+		})
+		return
+	}
+
+	// Вычисление времени
+	expiry := time.Now().AddDate(0, 0, 31)
+	expiryMs := expiry.UnixMilli()
 
 	// Собираем данные для запроса
 	internalData := xui.ClientAddInternal{
-		Email:      "string",
-		TotalGB:    500,
-		ExpiryTime: 3000000,
+		Email:      userName,
+		TotalGB:    0,
+		ExpiryTime: expiryMs,
 		TgID:       int32(tgID),
 		LimitIP:    5,
 		Enable:     true,
@@ -118,8 +142,20 @@ func (b *Bot) handleCreateSubscription(
 		return
 	}
 
+	text := fmt.Sprintf(
+		"🎉 <b>Подписка успешно создана!</b>\n\n"+
+			"👤 <b>Пользователь:</b> <code>%s</code>\n"+
+			"📦 <b>Трафик:</b> ♾ Безлимит\n"+
+			"📅 <b>Действует до:</b> %s\n"+
+			"🌐 <b>Лимит IP:</b> %d\n\n"+
+			"🔗 <i>Данные для подключения доступны в личном кабинете.</i>",
+		userName,
+		expiry.Format("02.01.2006 15:04"),
+		5,
+	)
 	client.SendMessage(ctx, &tgbot.SendMessageParams{
-		ChatID: chatID,
-		Text:   "подписка создана",
+		ChatID:    chatID,
+		Text:      text,
+		ParseMode: "HTML",
 	})
 }
